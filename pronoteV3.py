@@ -5,7 +5,7 @@
 # @Email:  madadj4@gmail.com
 # @Project: Pronote V3.9
 # @Last modified by:   Stormix
-# @Last modified time: 2017-06-03T17:19:03+01:00
+# @Last modified time: 2017-06-03T17:23:41+01:00
 # @Website: https://stormix.co
 
 # Import Some Python Modules
@@ -13,8 +13,6 @@
 import inspect, sys
 import os
 import time
-import urllib
-import urllib.request
 from sys import platform
 import re
 
@@ -239,7 +237,6 @@ class Pronote:
                 os.makedirs(Folder)
             # Check if the file already exists , if not download it
             if not os.path.exists(File_path):
-                size = urllib.request.urlopen(File_link).info()['Content-Length']
                 print("-> Downloading "+File_name+" ",end=" ")
                 self.downloadUrl(File_link, File_path)
                 print('[DONE]')
