@@ -2,8 +2,10 @@
 
 # @Author: Stormix - Anas Mazouni
 # @Date:   2017-02-12 23:04:51
+# @Email:  madadj4@gmail.com
+# @Project: Pronote V3.9
 # @Last modified by:   Stormix
-# @Last modified time: 2017-06-03T16:19:37+01:00
+# @Last modified time: 2017-06-03T17:06:26+01:00
 # @Website: https://stormix.co
 
 # Import Some Python Modules
@@ -25,7 +27,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 
-#
+# V4
+from clint.textui import progress
+import requests
+
 class Pronote:
     '''
         Pronote Class
@@ -75,14 +80,6 @@ class Pronote:
             -> Password : %s
         """ % (self.url,self.username,"*"*len(self.password))
 
-    # Some handy functions I need :
-    def human_read(num, suffix='B'):
-        for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
-            if abs(num) < 1024.0:
-                return "%3.1f%s%s" % (num, unit, suffix)
-            num /= 1024.0
-        return "%.1f%s%s" % (num, 'Yi', suffix)
-
     def changeID(self,id):
         assert type(id) and 100 < int(id) < 999 , "Invalid ID"
         self.id_code = id
@@ -94,10 +91,10 @@ class Pronote:
         # Check which operating system is being used !
         if platform == "linux" or platform == "linux2":
             # linux
-            chrome_driver = currentfolder+"/chromedriver"
+            chrome_driver = currentfolder+"/Drivers/chromedriver"
         elif platform == "win32":
             # Windows
-            chrome_driver = currentfolder+"/chromedriver.exe"
+            chrome_driver = currentfolder+"/Drivers/chromedriver.exe"
         self.browser = webdriver.Chrome(chrome_driver)
         Browser = self.browser
         Website = self.url
@@ -106,7 +103,7 @@ class Pronote:
         print("Browser Initiated !")
         print("Loading .. " + Website, end =' ')
         time.sleep(self.delay)
-        print(u'\u2713')
+        print('[DONE]')
 
     def setOutput(self,folder):
         assert type(folder) == str , "Invalide Folder Name"
@@ -114,7 +111,7 @@ class Pronote:
         if not os.path.isdir(folder):
             # If not , make a new one
             os.makedirs(folder)
-            print("Creating "+folder +"...",u'\u2713')
+            print("Creating "+folder +"...",'[DONE]')
             self.Output = folder
             print("Download folder changed !")
         else:
@@ -139,7 +136,7 @@ class Pronote:
         print("Logging in ...",end=" ")
         Browser.find_element_by_id(self.connect_button).click()
         time.sleep(self.delay)
-        print(u'\u2713')
+        print('[DONE]')
 
     def goToSubjects(self):
         # Go to the files/contenu de cour section
@@ -220,7 +217,7 @@ class Pronote:
                 time.sleep(2)
             else:
                 Files += [(subject_name,File_name,File_link)]
-        print("Done ",u'\u2713')
+        print('Found ['+str(len(Files))+']')
         self.goToSubjects()
         self.autoIdSet() # Must update the ID each time!
         return Files
@@ -242,13 +239,20 @@ class Pronote:
             # Check if the file already exists , if not download it
             if not os.path.exists(File_path):
                 size = urllib.request.urlopen(File_link).info()['Content-Length']
-                print("-> Downloading "+File_name+" ",end=" ") #("+self.human_read(int(size))+")..."
-                Downloader = urllib.request
-                # Urllib is love , Urllib is life !
-                Downloader.urlretrieve(File_link, File_path)
-                print(u'\u2713')
+                print("-> Downloading "+File_name+" ",end=" ")
+                self.downloadUrl(File_link, File_path)
+                print('[DONE]')
                 counter += 1
         print("-"*30,str(counter) + " files were downloaded !",sep=" \n")
+
+    def downloadUrl(self,url,path):
+        r = requests.get(url, stream=True)
+        with open(path, 'wb') as f:
+            total_length = int(r.headers.get('content-length'))
+            for chunk in progress.bar(r.iter_content(chunk_size=1024), expected_size=(total_length/1024) + 1):
+                if chunk:
+                    f.write(chunk)
+                    f.flush()
 
     def resetConnection(self):
         """
@@ -296,6 +300,7 @@ class Pronote:
         NewFiles = self.fetchNewFiles()
         self.downloadFiles(NewFiles)
         print(self.thankyou)
+
     def Download(self):
         Files = []
         Subjects = [subject_name for subject_name in self.fetchSubjects().items()]
@@ -323,6 +328,7 @@ class Pronote:
                 details = details[0]+" just posted a new mark , you got : "+details[1]+". Moyenne de classe : " + details[7]
             Notes += [details]
         return Notes
+
     def showGrades(self):
         count = int(input('How many marks do you want to see ? '))
         Notes = self.latestMarks(count)
