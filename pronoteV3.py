@@ -5,7 +5,7 @@
 # @Email:  madadj4@gmail.com
 # @Project: Pronote V3.9
 # @Last modified by:   Stormix
-# @Last modified time: 2017-06-03T17:06:26+01:00
+# @Last modified time: 2017-06-03T17:19:03+01:00
 # @Website: https://stormix.co
 
 # Import Some Python Modules
@@ -30,6 +30,7 @@ from selenium.common.exceptions import NoSuchElementException
 # V4
 from clint.textui import progress
 import requests
+from multiprocessing import Queue
 
 class Pronote:
     '''
