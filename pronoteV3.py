@@ -4,8 +4,8 @@
 # @Date:   2017-02-12 23:04:51
 # @Email:  madadj4@gmail.com
 # @Project: Pronote V3.9
-# @Last modified by:   Stormix
-# @Last modified time: 2017-06-03T17:23:41+01:00
+# @Last modified by:   Anas Mazouni
+# @Last modified time: 2017-06-04T11:46:54+01:00
 # @Website: https://stormix.co
 
 # Import Some Python Modules
@@ -93,7 +93,8 @@ class Pronote:
             chrome_driver = currentfolder+"/Drivers/chromedriver"
         elif platform == "win32":
             # Windows
-            chrome_driver = currentfolder+"/Drivers/chromedriver.exe"
+            chrome_driver = "Drivers/chromedriver.exe"
+        print("Chrome Driver Location : "+chrome_driver)
         self.browser = webdriver.Chrome(chrome_driver)
         Browser = self.browser
         Website = self.url
@@ -176,7 +177,8 @@ class Pronote:
             # Alright , now that we got the id , let's get into work
             subject = Browser.find_element_by_id(subject_id)
             subject_name  = subject.text # Fetch the subject name !
-            subjects[subject_id] = subject_name
+            if not in ["TP SP/INFO"]:
+                subjects[subject_id] = subject_name
         print("Fetched all subject !")
         return subjects
 
